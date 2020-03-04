@@ -7,6 +7,7 @@ import {
   Text,
   StatusBar,
   Image,
+  Button,
   TouchableWithoutFeedback,
   Dimensions,
 } from 'react-native';
@@ -29,6 +30,8 @@ const options = {
 };
 const App = () => {
   const [imageUrl, setImageUrl] = useState('');
+  const [canvasG, setCanvasG] = useState(null);
+  const [fileType, setFileType] = useState('');
   const [canvasDimensions, setCanvasDimensions] = useState({});
 
   const {
@@ -58,17 +61,26 @@ const App = () => {
       } else {
         // let source = {uri: response.uri};
         // let source = {uri: 'data:image/jpeg;base64,' + response.data};
-        const {uri, width, height} = response;
+        const {uri, type, width, height} = response;
+        setFileType(type);
         setImageUrl(uri);
         setCanvasDimensions({width, height});
       }
     });
   };
 
-  const handleCanvas = async canvas => {
+  const saveImage = async () => {
+    if (canvasG) {
+      const dataURL = await canvasG.toDataURL(fileType);
+      console.log(dataURL);
+    }
+  };
+
+  const handleCanvas = canvas => {
     if (canvas) {
       canvas.width = canvasWidth;
       canvas.height = canvasHeight;
+      setCanvasG(canvas);
       const fillText = 'ReactNativeCanvasDemo!';
       const ctx = canvas.getContext('2d');
       loadImage(canvas, imageUrl)
@@ -87,7 +99,6 @@ const App = () => {
           );
           const measure = await ctx.measureText(fillText);
           let nums = Math.ceil(calHeight / measure.width);
-          console.log(calHeight, measure.width, nums);
           let content = '';
           while (nums > 0) {
             if (content !== '') {
@@ -96,8 +107,6 @@ const App = () => {
             content += fillText;
             nums--;
           }
-
-          console.log(content);
 
           const lines = Math.floor(calHeight / 50);
           for (let i = 0; i < lines; i++) {
@@ -155,6 +164,7 @@ const App = () => {
           <View style={styles.body}>
             <View>{headerContent}</View>
             <Text style={styles.sectionTitle}>React Native Canvas Demo</Text>
+            <Button title="Save" onPress={saveImage} />
           </View>
         </ScrollView>
       </SafeAreaView>
