@@ -69,10 +69,44 @@ const App = () => {
     if (canvas) {
       canvas.width = canvasWidth;
       canvas.height = canvasHeight;
+      const fillText = 'ReactNativeCanvasDemo!';
       const ctx = canvas.getContext('2d');
       loadImage(canvas, imageUrl)
-        .then(image => {
+        .then(async image => {
           ctx.drawImage(image, 0, 0, canvasWidth, canvasHeight);
+          ctx.font = '20px';
+          ctx.fillStyle = 'rgba(255, 255, 255, 1)';
+
+          ctx.save();
+          const title = 'ReactNativeCanvasDemo';
+          ctx.fillText(title, canvasWidth - 120, canvasHeight - 20);
+          ctx.restore();
+
+          const calHeight = Math.sqrt(
+            Math.pow(canvasWidth, 2) + Math.pow(canvasHeight, 2),
+          );
+          const measure = await ctx.measureText(fillText);
+          let nums = Math.ceil(calHeight / measure.width);
+          console.log(calHeight, measure.width, nums);
+          let content = '';
+          while (nums > 0) {
+            if (content !== '') {
+              content += '  ';
+            }
+            content += fillText;
+            nums--;
+          }
+
+          console.log(content);
+
+          const lines = Math.floor(calHeight / 50);
+          for (let i = 0; i < lines; i++) {
+            ctx.save();
+            ctx.translate(canvasWidth / 2, -canvasHeight / 2);
+            ctx.rotate((45 * Math.PI) / 180); //选择画布
+            ctx.fillText(content, 0, 50 + 50 * i);
+            ctx.restore();
+          }
         })
         .catch(console.error);
     }
